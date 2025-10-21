@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.dast.back.mapper.ReportMapper">
+
+    <insert id="insertReport" parameterType="com.dast.back.Bean.TaskReport">
+        INSERT INTO task_report (task_id, report_path,status,name,source,groupId)
+        VALUES (#{task_id}, #{report_path},#{status},#{name},#{source},#{groupId})
+    </insert>
+
+    <update id="updateStatus">
+        UPDATE task_report SET status = #{status} WHERE groupId = #{groupId}
+    </update>
+
+    <update id="updateTaskStatus">
+        UPDATE tasks SET status = #{status} WHERE id = #{id}
+    </update>
+
+    <select id="getReportsByTaskId"  resultType="com.dast.back.Bean.TaskReport">
+        SELECT * FROM task_report WHERE task_id = #{task_id} AND status = 1 AND source=#{source}  AND groupId=#{groupId} ORDER BY create_time DESC
+    </select>
+
+    <select id="getReportPathById"  resultType="string">
+        SELECT report_path FROM task_report WHERE id = #{id} AND task_id=#{task_id}
+    </select>
+
+    <delete id="deleteReportById">
+        DELETE FROM task_report WHERE id = #{id} AND task_id = #{task_id};
+    </delete>
+
+
+
+
+
+</mapper>
