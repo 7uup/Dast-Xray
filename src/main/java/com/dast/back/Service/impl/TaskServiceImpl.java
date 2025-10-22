@@ -1,10 +1,12 @@
 package com.dast.back.Service.impl;
 
 import com.dast.back.Bean.Task;
+import com.dast.back.Bean.TaskReport;
 import com.dast.back.Bean.ToolsSetting;
 import com.dast.back.Server.CrawlergoManager;
 import com.dast.back.Server.XrayManager;
 import com.dast.back.Service.TaskService;
+import com.dast.back.Service.WebHookService;
 import com.dast.back.mapper.TaskMapper;
 import com.dast.back.mapper.ReportMapper;
 import com.github.pagehelper.PageHelper;
@@ -40,6 +42,11 @@ public class TaskServiceImpl implements TaskService {
 
     @Autowired
     private ReportMapper reportMapper;
+
+    @Autowired
+    private WebHookService webHookService;
+
+
 
     private String xray_path;
     private String crawlergo_path;
@@ -83,7 +90,7 @@ public class TaskServiceImpl implements TaskService {
                 Files.createDirectories(resultDir);
             }
 
-            this.m = new XrayManager(resultDir, reportMapper);
+            this.m = new XrayManager(resultDir, reportMapper,taskMapper,webHookService);
             this.mgr = new CrawlergoManager();
 
             log.info("[INFO] xray工具初始化完成：" + xray_path);
@@ -254,13 +261,18 @@ public class TaskServiceImpl implements TaskService {
         try {
             mgr.stopCrawlergo(task.getCrawlerid());
             m.stopXray(Integer.parseInt(task.getXyport()));
+            List<TaskReport> reports =reportMapper.getReportsByGroupIdAll(task.getGroupId());
+            for (TaskReport report : reports){
+                reportMapper.deleteReportById(report.getId(),report.getTask_id());
+            }
+            taskMapper.updateStatus(id,3);
         }catch (NullPointerException e){
             taskMapper.updateStatus(id,3);
             return 13000;
         }catch (Exception e1){
             return 13001;
         }
-        taskMapper.updateStatus(id,3);
+
         return 13000;//关闭任务成功
     }
 
@@ -276,6 +288,10 @@ public class TaskServiceImpl implements TaskService {
 
                 mgr.stopCrawlergo(task.getCrawlerid());
                 m.stopXray(Integer.parseInt(task.getXyport()));
+                List<TaskReport> reports =reportMapper.getReportsByGroupIdAll(task.getGroupId());
+                for (TaskReport report : reports){
+                    reportMapper.deleteReportById(report.getId(),report.getTask_id());
+                }
                 taskMapper.updateStatusByGroup(task.getGroupId(),3);
             }catch (NullPointerException e){
                 taskMapper.updateStatusByGroup(task.getGroupId(),3);

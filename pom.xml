@@ -35,6 +35,29 @@
       <scope>test</scope>
     </dependency>
 
+    <dependency>
+      <groupId>commons-codec</groupId>
+      <artifactId>commons-codec</artifactId>
+      <version>1.16.0</version>
+    </dependency>
+
+    <!-- 钉钉 SDK -->
+    <!-- https://mvnrepository.com/artifact/com.aliyun/dingtalk -->
+    <dependency>
+      <groupId>com.aliyun</groupId>
+      <artifactId>dingtalk</artifactId>
+      <version>2.2.25</version>
+    </dependency>
+
+    <!-- 飞书 SDK -->
+    <!-- https://mvnrepository.com/artifact/com.larksuite.oapi/oapi-sdk -->
+    <dependency>
+      <groupId>com.larksuite.oapi</groupId>
+      <artifactId>oapi-sdk</artifactId>
+      <version>2.4.16</version>
+    </dependency>
+
+
 
     <!-- ✅ MyBatis -->
     <dependency>

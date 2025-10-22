@@ -1,7 +1,14 @@
 package com.dast.back;
 
 import com.dast.back.Bean.Task;
+import com.dast.back.Bean.TaskReport;
+import com.dast.back.Bean.WebHook;
+import com.dast.back.Service.ReportService;
 import com.dast.back.Service.TaskService;
+import com.dast.back.Service.WebHookService;
+import com.dast.back.mapper.ReportMapper;
+import com.dast.back.mapper.TaskMapper;
+import com.dast.back.util.CustomWebhookSender;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +17,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 
@@ -21,6 +29,15 @@ public class ReportServiceImplSimpleTest {
 
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    private TaskMapper taskMapper;
+
+    @Autowired
+    private WebHookService webHookService;
+
+    @Autowired
+    private ReportMapper reportService;
 
     @Test
     public void runCrawlergo() throws IOException {
@@ -39,6 +56,9 @@ public class ReportServiceImplSimpleTest {
             System.out.println(task);
         }
     }
+
+
+
 
 
 

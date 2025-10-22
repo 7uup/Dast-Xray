@@ -12,6 +12,13 @@ public interface ReportMapper {
     Integer updateStatus(@Param("groupId") String groupId, @Param("status") Integer status);
     Integer updateTaskStatus(@Param("id") Long id, @Param("status") Integer status);
     List<TaskReport>  getReportsByTaskId(@Param("task_id") Long id,@Param("source") int source,@Param("groupId") String groupId);
+    List<TaskReport>  getReportsByGroupIdAll(@Param("groupId") String groupId);
     String getReportPathById(@Param("id") Integer id,@Param("task_id") Long task_id);
     Integer deleteReportById(@Param("id") Integer id,@Param("task_id") Long task_id);
+    List<TaskReport> getLatestReportByTaskId(@Param("task_id") Long id,@Param("source") int source,@Param("groupId") String groupId,@Param("size") int size);
+    List<TaskReport> getLatestReportsByGroup(
+            @Param("source") Integer source,
+            @Param("groupId") String groupId,
+            @Param("report_path") String report_path);
+
 }

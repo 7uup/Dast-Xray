@@ -21,6 +21,11 @@
         SELECT * FROM task_report WHERE task_id = #{task_id} AND status = 1 AND source=#{source}  AND groupId=#{groupId} ORDER BY create_time DESC
     </select>
 
+
+    <select id="getReportsByGroupIdAll"  resultType="com.dast.back.Bean.TaskReport">
+        SELECT * FROM task_report WHERE groupId=#{groupId}
+    </select>
+
     <select id="getReportPathById"  resultType="string">
         SELECT report_path FROM task_report WHERE id = #{id} AND task_id=#{task_id}
     </select>
@@ -28,6 +33,34 @@
     <delete id="deleteReportById">
         DELETE FROM task_report WHERE id = #{id} AND task_id = #{task_id};
     </delete>
+
+
+    <select id="getLatestReportByTaskId"  resultType="com.dast.back.Bean.TaskReport">
+        SELECT * FROM task_report WHERE task_id = #{task_id} AND status = 1 AND source=#{source}  AND groupId=#{groupId} ORDER BY create_time DESC LIMIT #{size}
+    </select>
+
+
+    <select id="getLatestReportsByGroup"  resultType="com.dast.back.Bean.TaskReport">
+        SELECT * FROM task_report WHERE  status = 1 AND source=#{source}  AND groupId=#{groupId} AND report_path=#{report_path} ORDER BY create_time
+    </select>
+
+<!--    <select id="getLatestReportsByGroup" resultType="com.dast.back.Bean.TaskReport">-->
+    <!--        SELECT tr.*-->
+    <!--        FROM task_report tr-->
+    <!--                 INNER JOIN (-->
+    <!--            SELECT task_id, MAX(create_time) AS max_time-->
+    <!--            FROM task_report-->
+    <!--            WHERE status = 1-->
+    <!--              AND source = #{source}-->
+    <!--              AND groupId = #{groupId}-->
+    <!--            GROUP BY task_id-->
+    <!--        ) t2-->
+    <!--                            ON tr.task_id = t2.task_id AND tr.create_time = t2.max_time-->
+    <!--        WHERE tr.status = 1-->
+    <!--          AND tr.source = #{source}-->
+    <!--          AND tr.groupId = #{groupId}-->
+    <!--        ORDER BY tr.create_time DESC-->
+    <!--    </select>-->
 
 
 

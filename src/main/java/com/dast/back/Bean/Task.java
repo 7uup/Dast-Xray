@@ -16,5 +16,6 @@ public class Task {
     private String createtime;
     private Integer source;
     private String groupId;
+    private String webhookid;
 }
 

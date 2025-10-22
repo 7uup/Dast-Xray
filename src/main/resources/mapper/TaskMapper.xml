@@ -15,32 +15,13 @@
     </select>
 
 
-<!--    <insert id="insertTask" parameterType="com.dast.back.Bean.Task" useGeneratedKeys="true" keyProperty="id" keyColumn="id">-->
-<!--        INSERT INTO tasks-->
-<!--        <trim prefix="(" suffix=")" suffixOverrides=",">-->
-<!--            <if test="name != null">name,</if>-->
-<!--            <if test="url != null">url,</if>-->
-<!--            <if test="createuser != null">createuser,</if>-->
-<!--            <if test="status != null">status,</if>-->
-<!--            <if test="format != null">format,</if>-->
-<!--            <if test="source != null">source,</if>-->
-<!--            <if test="createtime != null">createtime,</if>-->
-<!--        </trim>-->
-<!--        <trim prefix="VALUES (" suffix=")" suffixOverrides=",">-->
-<!--            <if test="name != null">#{name},</if>-->
-<!--            <if test="url != null">#{url},</if>-->
-<!--            <if test="createuser != null">#{createuser},</if>-->
-<!--            <if test="status != null">#{status},</if>-->
-<!--            <if test="format != null">#{format},</if>-->
-<!--            <if test="source != null">#{source},</if>-->
-<!--            <if test="createtime != null">#{createtime},</if>-->
-<!--        </trim>-->
-<!--    </insert>-->
+
 
     <insert id="insertTask" parameterType="com.dast.back.Bean.Task" useGeneratedKeys="true" keyProperty="id" keyColumn="id">
         INSERT INTO tasks
         <trim prefix="(" suffix=")" suffixOverrides=",">
             <if test="groupId != null">groupId,</if>
+            <if test="webhookid != null">webhookid,</if>
             <if test="name != null">name,</if>
             <if test="url != null">url,</if>
             <if test="createuser != null">createuser,</if>
@@ -50,6 +31,7 @@
             <if test="createtime != null">createtime,</if>
         </trim>
         <trim prefix="VALUES (" suffix=")" suffixOverrides=",">
+            <if test="webhookid != null">#{webhookid},</if>
             <if test="groupId != null">#{groupId},</if>
             <if test="name != null">#{name},</if>
             <if test="url != null">#{url},</if>
