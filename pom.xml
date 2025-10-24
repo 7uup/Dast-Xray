@@ -118,17 +118,25 @@
     </dependency>
   </dependencies>
 
-  <!--3、定义springboot的打包方式，spring-boot-maven-plugin可以在打包时自动将所有类和资源打包成一个独立可运行的jar包-->
-    <build>
-        <plugins>
-            <!-- Spring Boot 打包插件 -->
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>3.3.3</version> <!-- 或你项目的版本 -->
-            </plugin>
-        </plugins>
-    </build>
+  <build>
+    <finalName>app</finalName> <!-- 这里就是打包后的jar名字 -->
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+        <version>2.7.18</version>
+        <executions>
+          <execution>
+            <goals>
+              <goal>repackage</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+
 
 </project>
 

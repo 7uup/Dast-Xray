@@ -32,13 +32,14 @@ public class ConfigController {
     public void init() {
         this.toolsSetting = taskService.getToolsPath();
         if (toolsSetting == null || toolsSetting.getXrayPath() == null) {
-            log.error("❌ 工具路径未正确配置");
-            throw new IllegalStateException("工具路径未正确配置");
+            log.warn("⚠ 工具路径未配置，后台可以进行填写");
+            this.Xray_CONFIG_DIR = null; // 或者设置一个默认目录
+        } else {
+            this.Xray_CONFIG_DIR = new File(toolsSetting.getXrayPath()).getParent();
+            log.info("✅ Xray_CONFIG_DIR 初始化成功：" + Xray_CONFIG_DIR);
         }
-
-        this.Xray_CONFIG_DIR = new File(toolsSetting.getXrayPath()).getParent();
-        log.info("✅ Xray_CONFIG_DIR 初始化成功：" + Xray_CONFIG_DIR);
     }
+
 
     @GetMapping("/xray/list")
     public List<String> listConfigs() {

@@ -34,7 +34,7 @@ public class WebHookController {
         return webHookService.selectList();
     }
 
-    @PostMapping
+    @PostMapping("/insert")
     public Integer insert(@RequestBody WebHook webHook) {
         return webHookService.insert(webHook);
     }

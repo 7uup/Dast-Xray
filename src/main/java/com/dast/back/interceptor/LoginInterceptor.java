@@ -16,7 +16,7 @@ import java.util.List;
 public class LoginInterceptor implements HandlerInterceptor {
 
     // 白名单URL列表，不需要登录校验
-    private static final List<String> EXCLUDED_URLS = Arrays.asList("/api/user/login", "/api/user/getUserInfo");
+    private static final List<String> EXCLUDED_URLS = Arrays.asList("/api/user/login", "/api/user/getUserInfo","/api/user/logout");
     @Autowired
     private UserService userService;
 

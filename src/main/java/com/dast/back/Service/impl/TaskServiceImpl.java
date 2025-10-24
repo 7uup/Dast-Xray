@@ -58,29 +58,27 @@ public class TaskServiceImpl implements TaskService {
     private ExecutorService executor;
 
     @PostConstruct
-    public void init() throws IOException {
+    public void init() {
         try {
             reloadToolSetting();
-        }catch (Exception e){
-            log.error("[ERROR] 初始化失败：" + e.getMessage());
+        } catch (Exception e) {
+            // 不抛异常，只记录日志
+            log.warn("[WARN] 工具路径未配置或初始化失败，可在后台填写配置后重新加载：" + e.getMessage());
         }
     }
 
-    public synchronized void reloadToolSetting(){
+
+    public synchronized void reloadToolSetting() {
         ToolsSetting toolPath = taskMapper.getToolsPath();
 
-        if (toolPath == null) {
-            log.error("[ERROR] 工具路径未配置，请检查数据库或配置文件！");
-            throw new IllegalStateException("工具路径未配置，请检查数据库或配置文件！");
+        if (toolPath == null || isInvalidPath(toolPath.getXrayPath())) {
+            log.warn("[WARN] 工具路径未配置或无效，请在系统设置中填写配置。");
+            return; // 不再抛异常
         }
 
         this.xray_path = toolPath.getXrayPath();
         this.crawlergo_path = toolPath.getCrawlergoPath();
         this.chromepath = toolPath.getChromePath();
-        if (isInvalidPath(xray_path)) {
-            log.warn("[WARN] 工具路径配置无效或为空，跳过工具初始化，请在系统设置中重新配置。");
-            return;
-        }
 
         try {
             this.xrayDir = Paths.get(xray_path).getParent();
@@ -90,7 +88,7 @@ public class TaskServiceImpl implements TaskService {
                 Files.createDirectories(resultDir);
             }
 
-            this.m = new XrayManager(resultDir, reportMapper,taskMapper,webHookService);
+            this.m = new XrayManager(resultDir, reportMapper, taskMapper, webHookService);
             this.mgr = new CrawlergoManager();
 
             log.info("[INFO] xray工具初始化完成：" + xray_path);
@@ -99,6 +97,7 @@ public class TaskServiceImpl implements TaskService {
             e.printStackTrace();
         }
     }
+
 
     private boolean isInvalidPath(String path) {
         if (path == null || path.trim().isEmpty()) return true;

@@ -26,7 +26,8 @@ public class WebConfig implements WebMvcConfigurer {
                 .excludePathPatterns(
                         "/api/user/login",
                         "/api/user/getUserInfo",
-                        "/api/openapi/**"
+                        "/api/openapi/**",
+                        "/sse/**"
                 );
     }
 }
