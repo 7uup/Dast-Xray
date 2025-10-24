@@ -5,6 +5,7 @@ import com.dast.back.Bean.TaskReport;
 import com.dast.back.Bean.WebHook;
 import com.dast.back.Service.ReportService;
 import com.dast.back.Service.TaskService;
+import com.dast.back.Service.UserService;
 import com.dast.back.Service.WebHookService;
 import com.dast.back.mapper.ReportMapper;
 import com.dast.back.mapper.TaskMapper;
@@ -17,7 +18,12 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.io.IOException;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
+import java.util.Enumeration;
 import java.util.List;
 
 
@@ -29,6 +35,9 @@ public class ReportServiceImplSimpleTest {
 
     @Autowired
     private TaskService taskService;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private TaskMapper taskMapper;
@@ -58,6 +67,28 @@ public class ReportServiceImplSimpleTest {
     }
 
 
+
+    @Test
+    public void test2(){
+        System.out.println(userService.getUserToken("admin_a764cb39364948d0b55b3d6e76ff0975"));
+    }
+
+    @Test
+    public void test3() throws Exception {
+        String localIP = null;
+        Enumeration<NetworkInterface> netInterfaces = NetworkInterface.getNetworkInterfaces();
+        while (netInterfaces.hasMoreElements()) {
+            NetworkInterface netInterface = netInterfaces.nextElement();
+            Enumeration<InetAddress> addresses = netInterface.getInetAddresses();
+            while (addresses.hasMoreElements()) {
+                InetAddress addr = addresses.nextElement();
+                if (addr instanceof Inet4Address && !addr.isLoopbackAddress()) {
+                    localIP = addr.getHostAddress();
+                }
+            }
+        }
+        System.out.println("本机IPv4地址：" + localIP);
+    }
 
 
 

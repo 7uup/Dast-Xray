@@ -132,6 +132,7 @@ public class TaskServiceImpl implements TaskService {
         task.setStatus(0);
         task.setGroupId(null);
         task.setGroupId(UUID.randomUUID().toString());
+        task.setWebhookid(task.getWebhookid());
         if (!task.getUrl().startsWith("http")) {
             return 0;
         }
@@ -153,11 +154,44 @@ public class TaskServiceImpl implements TaskService {
             task.setStatus(0);
             if (task.getFormat() == null) task.setFormat("html");
             task.setCreatetime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            if (task.getWebhookid() == null) {
+                task.setWebhookid("");
+            }else {
+                task.setWebhookid(task.getWebhookid());
+            }
             taskMapper.insertTask(task);
             ids.add(task.getId());
         }
         return ids;
     }
+
+
+    @Override
+    public List<String> addTaskByOpenapi(List<Task> tasks) {
+
+        String groupId = UUID.randomUUID().toString(); // 时间戳作 groupId
+        List<String> ids = new ArrayList<>();
+
+
+        for (Task task : tasks) {
+            if (task.getUrl() == null || !task.getUrl().startsWith("http")) continue;
+            task.setGroupId(groupId);
+            task.setStatus(0);
+            if (task.getFormat() == null) task.setFormat("html");
+            task.setCreatetime(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
+            if (task.getWebhookid() == null) {
+                task.setWebhookid("");
+            }else {
+                task.setWebhookid(task.getWebhookid());
+            }
+            taskMapper.insertTask(task);
+            ids.add(task.getGroupId());
+        }
+        return ids;
+    }
+
+
+
 
 
 

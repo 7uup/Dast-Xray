@@ -41,8 +41,8 @@ public class XrayManager {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
 
     // 可配置参数
-    private final int checkIntervalSeconds = 2;      // 每30秒检测一次
-    private final int idleTimeoutSeconds = 3;        // 60秒内无新日志视为静默
+    private final int checkIntervalSeconds = 5;      // 每30秒检测一次
+    private final int idleTimeoutSeconds = 10;        // 60秒内无新日志视为静默
     private final int consecutiveRequired = 2;        // 连续3次静默才判定完成
 
     public XrayManager(Path resultDir, ReportMapper reportMapper, TaskMapper taskMapper, WebHookService webHookMapper) throws IOException {

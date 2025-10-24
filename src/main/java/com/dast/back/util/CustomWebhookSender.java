@@ -265,85 +265,23 @@ public class CustomWebhookSender {
             } catch (Exception e) {
                 log.error("发送 webhook 失败: taskId=" + taskReport.getId(), e);
             }
-
-
     }
 
 
-    public static String testtemp() throws IOException {
-        StringBuilder sb = new StringBuilder();
-        Path jsonPath = Paths.get("/Users/7_up/Downloads/Xray/result/www_testfire_net_2025-10-22-145121.html".replace(".html", ".json"));
-        if (!Files.exists(jsonPath)) {
-            sb.append("⚠️ json报告文件未找到，暂不解析报告详情\n");
-            return sb.toString();
-        }
 
-        ObjectMapper mapper = new ObjectMapper();
-        DateTimeFormatter fmt = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
-                .withZone(ZoneId.of("Asia/Seoul"));
 
-        try (BufferedReader br = Files.newBufferedReader(jsonPath, StandardCharsets.UTF_8)) {
-            List<JsonNode> nodes = new ArrayList<>();
-            String line;
-            while ((line = br.readLine()) != null) {
-                line = line.trim();
-                if (line.isEmpty()) continue;
-                try {
-                    nodes.add(mapper.readTree(line));
-                } catch (Exception ex) {
-                    // 某行解析失败，记录日志但继续
-                    log.error("解析 JSON 行失败: " + (line.length() > 100 ? line.substring(0, 100) + "..." : line));
-                }
+
+    public static void sendTest(String webhookurl,String secret){
+        try {
+            String message = "Xray-web测试效果";
+            if (webhookurl.contains("feishu")||webhookurl.contains("lark")){
+                long timestamp = System.currentTimeMillis() / 1000L;
+                sendbyFeishu(webhookurl, buildJsonByFeishu(webhookurl, message,secret,timestamp));
+            }else{
+                sendbyDingtalk(webhookurl, secret, buildJsonByDingtalk(webhookurl, message));
             }
-
-            if (nodes.isEmpty()) {
-                sb.append("ℹ️ 报告中未发现漏洞条目。\n");
-                return sb.toString();
-            }
-
-            sb.append(String.format("🔎 共发现漏洞 %d 条：\n", nodes.size()));
-
-            int index = 1;
-            for (JsonNode item : nodes) {
-                long createTimeMs = item.path("create_time").asLong(0L);
-                String timeStr = createTimeMs > 0 ? fmt.format(Instant.ofEpochMilli(createTimeMs)) : "未知时间";
-
-                String addr = item.path("detail").path("addr").asText("");
-                String plugin = item.path("plugin").asText("");
-                String payload = item.path("detail").path("payload").asText("");
-
-                // 获取漏洞路径
-                String vulnPath = "";
-                JsonNode params = item.path("target").path("params");
-                if (params.isArray() && params.size() > 0) {
-                    JsonNode p0 = params.get(0);
-                    JsonNode pathNode = p0.path("path");
-                    if (pathNode.isArray() && pathNode.size() > 0) {
-                        List<String> parts = new ArrayList<>();
-                        for (JsonNode p : pathNode) parts.add(p.asText());
-                        vulnPath = String.join("/", parts);
-                    } else {
-                        vulnPath = p0.path("path").asText("");
-                    }
-                }
-
-                // 漏洞条目输出
-                sb.append(String.format("%d. 漏洞类型: %s\n", index++, plugin.isEmpty() ? "未知插件" : plugin));
-                sb.append(String.format("⏰time：%s\n", timeStr));
-                if (!addr.isEmpty()) sb.append(String.format("🔗url：%s\n", addr));
-                if (!vulnPath.isEmpty()) sb.append(String.format("🧭source：%s\n", vulnPath));
-                if (!payload.isEmpty()) {
-                    String displayPayload = payload.length() > 200 ? payload.substring(0, 200) + "..." : payload;
-                    sb.append(String.format("🧩Payload：%s\n", displayPayload));
-                }
-                sb.append("\n");
-            }
-
-            return sb.toString();
-
-        } catch (Exception ex) {
-            log.error("⚠️ 解析 JSON 文件时发生异常，部分漏洞可能未显示。\n");
-            return sb.toString();
+        } catch (Exception e) {
+            log.error("测试失败：", e);
         }
     }
 

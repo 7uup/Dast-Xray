@@ -7,4 +7,21 @@
     <select id="selectById" resultType="com.dast.back.Bean.WebHook">
         SELECT * FROM webhook WHERE id = #{id}
     </select>
+
+    <select id="selectList" resultType="com.dast.back.Bean.WebHook">
+        SELECT * FROM webhook
+    </select>
+
+    <insert id="insert">
+        INSERT INTO webhook (id,name,webhookurl,secret) values(#{id},#{name},#{webhookurl},#{secret})
+    </insert>
+
+    <update id="update">
+        update webhook set name=#{name},webhookurl=#{webhookurl},secret=#{secret} where id=#{id}
+    </update>
+
+    <delete id="delete">
+        DELETE FROM webhook WHERE id = #{id}
+    </delete>
+
 </mapper>

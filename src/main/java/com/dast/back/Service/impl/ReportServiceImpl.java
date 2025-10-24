@@ -6,7 +6,9 @@ import com.dast.back.Service.ReportService;
 import com.dast.back.Service.TaskService;
 import com.dast.back.mapper.ReportMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.File;
 import java.io.IOException;
@@ -66,7 +68,15 @@ public class ReportServiceImpl implements ReportService {
     }
 
     private void deleteReport(String path) throws IOException {
+        checkFilenameSafe(path);
         Files.delete(Paths.get(path));
+        Files.delete(Paths.get(path.replace(".html",".json")));
+    }
+
+    private void checkFilenameSafe(String filename) {
+        if (filename.contains("..") || filename.contains("../") || filename.contains("\\")|| filename.contains("./")) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "非法文件名");
+        }
     }
 
 
