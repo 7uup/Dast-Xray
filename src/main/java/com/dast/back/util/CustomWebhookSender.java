@@ -113,7 +113,7 @@ public class CustomWebhookSender {
     }
 
 
-    private static String GenSignByFeishu(String secret, int timestamp) throws NoSuchAlgorithmException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeyException {
+    private static String GenSignByFeishu(String secret, Long timestamp) throws NoSuchAlgorithmException, InvalidKeyException, NoSuchAlgorithmException, InvalidKeyException {
         //把timestamp+"\n"+密钥当做签名字符串
         String stringToSign = timestamp + "\n" + secret;
         //使用HmacSHA256算法计算签名
@@ -139,8 +139,9 @@ public class CustomWebhookSender {
     }
 
 
-    public static String buildJsonByFeishu(String webhookUrl, String message,String sign,Long timestamp){
+    public static String buildJsonByFeishu(String webhookUrl, String message,String secret,Long timestamp) throws NoSuchAlgorithmException, InvalidKeyException {
         Map<String, Object> root = new HashMap<>();
+        String sign=GenSignByFeishu(secret,timestamp);
         root.put("msg_type", "text");
         root.put("sign",sign);
         root.put("timestamp",timestamp);
@@ -276,6 +277,7 @@ public class CustomWebhookSender {
             String message = "Xray-web测试效果";
             if (webhookurl.contains("feishu")||webhookurl.contains("lark")){
                 long timestamp = System.currentTimeMillis() / 1000L;
+
                 sendbyFeishu(webhookurl, buildJsonByFeishu(webhookurl, message,secret,timestamp));
             }else{
                 sendbyDingtalk(webhookurl, secret, buildJsonByDingtalk(webhookurl, message));
@@ -287,7 +289,7 @@ public class CustomWebhookSender {
 
     public static void main(String[] args) throws Exception {
 
-        long timestamp = System.currentTimeMillis() / 1000L;
+//        long timestamp = System.currentTimeMillis() / 1000L;
 
 //        String sign = GenSignByFeishu(secret, (int) timestamp);
 //        String webhookParam = buildJsonByFeishu(webhook, "测试消息",sign,timestamp);
