@@ -133,12 +133,12 @@ public class CrawlergoManager {
 
             if (deltaSec >= IDLE_THRESHOLD_SEC) {
                 int stable = info.incrementStableCount();
-                log.info("📊 进程 [{}] 已静默 {} 秒，连续稳定次数 {}", info.getId(), deltaSec, stable);
+//                log.info("📊 进程 [{}] 已静默 {} 秒，连续稳定次数 {}", info.getId(), deltaSec, stable);
                 if (stable >= STABLE_COUNT_REQUIRED) {
-                    log.info("✅ 确认 crawlergo [{}] 任务已完成，准备停止", info.getId());
-                    stopCrawlergo(info.getId());
+//                    log.info("✅ 确认 crawlergo [{}] 任务已完成，准备停止", info.getId());
+//                    stopCrawlergo(info.getId());
                     long runtime = Duration.between(info.getStartTime(), Instant.now()).getSeconds();
-                    log.info("Crawlergo [{}] 总运行时长 {} 秒", info.getId(), runtime);
+//                    log.info("Crawlergo [{}] 总运行时长 {} 秒", info.getId(), runtime);
                 }
             } else {
                 info.resetStableCount(); // 有日志刷新则重置稳定计数
