@@ -17,7 +17,7 @@ public class OpenApiController {
     private TaskService taskService;
 
     @PostMapping("/scans")
-    public ResponseEntity<?> scans(@RequestBody Map<String, Object> requestBody) throws IOException {
+    public ResponseEntity<?> scans(@RequestBody Map<String, Object> requestBody) throws IOException, InterruptedException {
         Map<String, Object> result = new HashMap<>();
         List<String> tasks = (List<String>) requestBody.get("tasks");
         String webhookid = (String) requestBody.get("webhookid");

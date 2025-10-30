@@ -7,6 +7,7 @@ public class ToolsSetting {
     private String id;
     private String xrayPath;
     private String crawlergoPath;
+    private String radPath;
     private String chromePath;
 
 }

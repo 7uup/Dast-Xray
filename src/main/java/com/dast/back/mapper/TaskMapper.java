@@ -16,10 +16,12 @@ public interface TaskMapper {
     int deleteTask(@Param("id") Long id);
     int deleteTaskbyGroup(@Param("id") String id);
     int updateStatus(@Param("id") Long id, @Param("status") Integer status);
+
     int updateStatusByGroup(@Param("id") String id, @Param("status") Integer status);
     Task getOne(@Param("id") Long id);
 
     Integer updateTaskcol(Long id, String xyport, String crawlerid);
+    Integer updateTaskcol2(String groupid, String xyport, String crawlerid);
     ToolsSetting getToolsPath();
 
     List<Task> selectByGroupId(@Param("groupId") String groupId);

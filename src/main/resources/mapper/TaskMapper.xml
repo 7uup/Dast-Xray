@@ -55,7 +55,7 @@
     </select>
 
     <update id="updateTool" parameterType="com.dast.back.Bean.ToolsSetting">
-        UPDATE toolsetting SET xraypath=#{xrayPath},chromepath=#{chromePath},crawlergopath=#{crawlergoPath}
+        UPDATE toolsetting SET xraypath=#{xrayPath},chromepath=#{chromePath},crawlergopath=#{crawlergoPath},radpath=#{radPath}
     </update>
 
 
@@ -82,6 +82,7 @@
         UPDATE tasks SET status = #{status} WHERE id = #{id}
     </update>
 
+
     <update id="updateStatusByGroup">
         UPDATE tasks SET status = #{status} WHERE groupId = #{id}
     </update>
@@ -95,6 +96,12 @@
     <update id="updateTaskcol">
         UPDATE tasks SET xyport = #{xyport},crawlerid=#{crawlerid} WHERE id = #{id}
     </update>
+
+    <update id="updateTaskcol2">
+        UPDATE tasks SET xyport = #{xyport},crawlerid=#{crawlerid} WHERE groupid = #{groupid}
+    </update>
+
+
 
     <select id="getToolsPath" resultType="com.dast.back.Bean.ToolsSetting">
         select * from toolsetting;

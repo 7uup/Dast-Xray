@@ -41,9 +41,9 @@ public class XrayManager {
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
 
     // 可配置参数
-    private final int checkIntervalSeconds = 5;      // 每30秒检测一次
-    private final int idleTimeoutSeconds = 10;        // 60秒内无新日志视为静默
-    private final int consecutiveRequired = 2;        // 连续3次静默才判定完成
+    private final int checkIntervalSeconds = 30;      // 每30秒检测一次
+    private final int idleTimeoutSeconds = 60;        // 60秒内无新日志视为静默
+    private final int consecutiveRequired = 3;        // 连续3次静默才判定完成
 
     public XrayManager(Path resultDir, ReportMapper reportMapper, TaskMapper taskMapper, WebHookService webHookMapper) throws IOException {
         this.resultDir = resultDir;
@@ -177,6 +177,7 @@ public class XrayManager {
         if (info.silentCount >= consecutiveRequired) {
             log.info("✅ Xray [{}] 连续 {} 次静默，确认扫描完成，准备停止", info.port, consecutiveRequired);
             stopAndFinalize(info);
+            taskMapper.updateStatusByGroup(info.uuid, 2);
         }
     }
 

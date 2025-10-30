@@ -4,6 +4,7 @@ import com.dast.back.Bean.Task;
 import com.dast.back.Bean.TaskReport;
 import com.dast.back.Bean.ToolsSetting;
 import com.dast.back.Server.CrawlergoManager;
+import com.dast.back.Server.RadManager;
 import com.dast.back.Server.XrayManager;
 import com.dast.back.Service.TaskService;
 import com.dast.back.Service.WebHookService;
@@ -17,7 +18,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -47,15 +50,18 @@ public class TaskServiceImpl implements TaskService {
     private WebHookService webHookService;
 
 
+    private static boolean xrayStarted = false;
+    private static int xrayPort = 0;
 
     private String xray_path;
     private String crawlergo_path;
     private String chromepath;
+    private String radDir;
     private Path xrayDir;
     private Path resultDir;
     private XrayManager m;
     private CrawlergoManager mgr;
-    private ExecutorService executor;
+    private RadManager radm;
 
     @PostConstruct
     public void init() {
@@ -79,6 +85,7 @@ public class TaskServiceImpl implements TaskService {
         this.xray_path = toolPath.getXrayPath();
         this.crawlergo_path = toolPath.getCrawlergoPath();
         this.chromepath = toolPath.getChromePath();
+        this.radDir = toolPath.getRadPath();
 
         try {
             this.xrayDir = Paths.get(xray_path).getParent();
@@ -90,6 +97,7 @@ public class TaskServiceImpl implements TaskService {
 
             this.m = new XrayManager(resultDir, reportMapper, taskMapper, webHookService);
             this.mgr = new CrawlergoManager();
+            this.radm = new RadManager();
 
             log.info("[INFO] xray工具初始化完成：" + xray_path);
         } catch (Exception e) {
@@ -240,37 +248,34 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public Integer startTask(String id, Integer source) throws IOException {
+    public Integer startTask(String id, Integer source) throws IOException, InterruptedException {
         List<Task> taskInfo = selectByGroupId(id);
-
+        List<String> urls=new ArrayList<>();
         if (taskInfo == null || taskInfo.isEmpty()) {
             return 0;
         }
 
-        // 动态调整线程池大小
-        int poolSize = Math.min(taskInfo.size(), 10);
-        executor = Executors.newFixedThreadPool(poolSize);
+        LocalDateTime now = LocalDateTime.now();
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMddHHmmss");
+        String reportPath = taskInfo.get(0).getGroupId().replace("-", "")+"_"+now.format(formatter)+".html";
 
+        //String name,String url,String output,String format,Long id,Integer source,String uuid
+        Integer xrayport=startXrayLisen(taskInfo.get(0).getName(),null,reportPath,taskInfo.get(0).getFormat(),taskInfo.get(0).getId(),source,taskInfo.get(0).getGroupId());
+
+
+        String xrayProxyLis="127.0.0.1:"+ xrayport;
         for (Task task : taskInfo) {
-            executor.submit(() -> {
-                try {
-                    String host = new URL(task.getUrl()).getHost().replace(".", "_");
-                    LocalDateTime now = LocalDateTime.now();
-                    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd-HHmmss");
-                    String filename = host + "_" + now.format(formatter);
+            try {
+                urls.add(task.getUrl());
 
-                    String reportPath = filename.replace(" ", "-") +
-                            ("html".equalsIgnoreCase(task.getFormat()) ? ".html" : ".json");
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            updateStatus(task.getId(), 1);
 
-                    updateStatus(task.getId(), 1);
-                    runTask(task.getName(), task.getUrl(), reportPath, task.getFormat(), task.getId(), source,task.getGroupId());
-                    log.info("扫描中: " + task.getUrl());
-                    Thread.sleep(1000);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            });
         }
+        //List<String> urls,String id,String xrayProxyLis,int xrayport
+        runTask2(urls,taskInfo.get(0).getGroupId(),xrayProxyLis,xrayport);
         return 1;
     }
 
@@ -383,6 +388,44 @@ public class TaskServiceImpl implements TaskService {
 
         updateTaskcol(id, String.valueOf(xrayport),info.getId());
         return 1;
+    }
+
+
+    public Integer runTask2(List<String> urls,String id,String xrayProxyLis,int xrayport) throws IOException, InterruptedException {
+
+        if(!new File(crawlergo_path).exists()){
+            return 12002; //crawlergo path不存在
+        }
+
+        if(!new File(chromepath).exists()){
+            return 12003; //chromepath path不存在
+        }
+        // 1. 创建临时文件保存urls
+        File tempFile = File.createTempFile("urls_"+UUID.randomUUID().toString().replace("-",""), ".txt");
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
+            for (String url : urls) {
+                writer.write(url);
+                writer.newLine();
+            }
+        }
+//        Thread.sleep(3000);
+
+
+        CrawlergoManager.CrawlergoProcessInfo info = mgr.startCrawlergo2(crawlergo_path,chromepath,urls,formatToHttpUrl(xrayProxyLis),null);
+        radm.startRad(radDir.toString(), tempFile.getAbsolutePath(), formatToHttpUrl(xrayProxyLis));
+
+
+        taskMapper.updateTaskcol2(id, String.valueOf(xrayport),info.getId());
+        tempFile.deleteOnExit();
+        return 1;
+    }
+
+    public Integer startXrayLisen(String name,String url,String output,String format,Long id,Integer source,String uuid) throws IOException {
+        if (!new File(xray_path).exists()){
+            return 12001;
+        }
+        int xrayport=startXaryProxy(xray_path, format, output,id,name,url,source,uuid);
+        return xrayport;
     }
 
     public static String formatToHttpUrl(String hostPort) {

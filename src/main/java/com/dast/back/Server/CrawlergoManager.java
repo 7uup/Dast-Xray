@@ -5,8 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.*;
-import java.net.URI;
-import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.time.*;
@@ -25,6 +23,8 @@ public class CrawlergoManager {
         t.setDaemon(true);
         return t;
     });
+
+    private String newurls;
 
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(2);
 
@@ -98,6 +98,81 @@ public class CrawlergoManager {
         return info;
     }
 
+    public CrawlergoProcessInfo startCrawlergo2(String exePath, String chromePath, List<String> targetUrl,
+                                               String proxyHostAndPort, List<String> extraArgs) throws IOException {
+
+        Objects.requireNonNull(exePath, "crawlergo path is null");
+        Objects.requireNonNull(chromePath, "chrome path is null");
+        Objects.requireNonNull(targetUrl, "targetUrl is null");
+
+
+        if (containsDangerousOperator(exePath)
+                || containsDangerousOperator(chromePath)) {
+            throw new IllegalArgumentException("参数包含不安全字符");
+        }
+
+        if (proxyHostAndPort == null || proxyHostAndPort.isEmpty()) {
+            throw new IllegalArgumentException("xray代理输入为空");
+        }
+
+        Path exe = Paths.get(exePath);
+        if (!Files.exists(exe) || !Files.isExecutable(exe)) {
+            throw new IllegalArgumentException("crawlergo 可执行文件不存在或不可执行: " + exePath);
+        }
+        StringBuilder sb = new StringBuilder();
+        if (targetUrl.size() == 1) {
+            newurls = targetUrl.get(0);
+        } else {
+            for (String urls : targetUrl) {
+                sb.append(urls).append(",");
+            }
+            // 去掉最后一个逗号
+            newurls = sb.substring(0, sb.length() - 1);
+        }
+
+
+        List<String> cmd = new ArrayList<>();
+        cmd.add(exePath);
+        cmd.add("-c");
+        cmd.add(chromePath);
+        cmd.add("-t");
+        cmd.add("10");
+        cmd.add("--push-to-proxy");
+        cmd.add(proxyHostAndPort);
+//        cmd.add("--request-proxy");
+//        cmd.add(proxyHostAndPort);
+        cmd.add("-f");
+        cmd.add("small");
+        cmd.add("--fuzz-path");
+        cmd.add("-u");
+        cmd.add(newurls);
+
+        if (extraArgs != null && !extraArgs.isEmpty()) cmd.addAll(extraArgs);
+
+        ProcessBuilder pb = new ProcessBuilder(cmd);
+        pb.redirectErrorStream(false);
+
+        Process proc;
+        try {
+            proc = pb.start();
+        } catch (IOException e) {
+            throw new IOException("启动 crawlergo 失败", e);
+        }
+
+        String id = UUID.randomUUID().toString();
+        Instant startTime = Instant.now();
+        CrawlergoProcessInfo info = new CrawlergoProcessInfo(id, cmd, proc, startTime);
+        running.put(id, info);
+
+        ioExecutor.submit(() -> streamToLogger(proc.getInputStream(), "CRAWLERGO-OUT[" + id + "]", info));
+        ioExecutor.submit(() -> streamToLogger(proc.getErrorStream(), "CRAWLERGO-ERR[" + id + "]", info));
+
+        return info;
+    }
+
+
+
+
     /**
      * 日志流监控
      */
@@ -138,7 +213,7 @@ public class CrawlergoManager {
 //                    log.info("✅ 确认 crawlergo [{}] 任务已完成，准备停止", info.getId());
 //                    stopCrawlergo(info.getId());
                     long runtime = Duration.between(info.getStartTime(), Instant.now()).getSeconds();
-//                    log.info("Crawlergo [{}] 总运行时长 {} 秒", info.getId(), runtime);
+                    log.info("Crawlergo [{}] 总运行时长 {} 秒", info.getId(), runtime);
                 }
             } else {
                 info.resetStableCount(); // 有日志刷新则重置稳定计数

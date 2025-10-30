@@ -38,7 +38,7 @@ public class TaskController {
     }
 
     @GetMapping("/{id}/startTaskBygroup")
-    public Integer startTaskBygroup(@PathVariable String id,@RequestParam Integer source) throws IOException {
+    public Integer startTaskBygroup(@PathVariable String id,@RequestParam Integer source) throws IOException, InterruptedException {
         if (source==null){
             source=0;
         }

@@ -27,7 +27,7 @@ public interface TaskService {
     ToolsSetting getToolsPath();
     List<Long> addTask(List<Task> task,boolean isList);
     List<String> addTaskByOpenapi(List<Task> task);
-    Integer startTask(String id,Integer source) throws IOException;
+    Integer startTask(String id,Integer source) throws IOException, InterruptedException;
     Integer updateTools(ToolsSetting toolsSetting);
 
 
