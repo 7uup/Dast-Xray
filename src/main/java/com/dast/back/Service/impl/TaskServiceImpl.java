@@ -420,7 +420,7 @@ public class TaskServiceImpl implements TaskService {
 
 
         taskMapper.updateTaskcol2(id, String.valueOf(xrayport),info.getId());
-        if (!waitForPortOpen("127.0.0.1", xrayport, 10000)) {
+        if (!waitForPortOpen("127.0.0.1", xrayport, 300000)) {
             log.error("xray 代理端口未能及时开放");
         }
 
