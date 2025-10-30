@@ -22,7 +22,9 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
+import java.net.Socket;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
@@ -418,13 +420,28 @@ public class TaskServiceImpl implements TaskService {
 
 
         taskMapper.updateTaskcol2(id, String.valueOf(xrayport),info.getId());
-        Thread.sleep(2000);
-        log.info("✅ RAD 启动成功");
+        if (!waitForPortOpen("127.0.0.1", xrayport, 10000)) {
+            log.error("xray 代理端口未能及时开放");
+        }
+
         radm.startRad(radDir.toString(), tempFile.getAbsolutePath(), formatToHttpUrl(xrayProxyLis));
 
-//        tempFile.deleteOnExit();
         return 1;
     }
+
+    private boolean waitForPortOpen(String host, int port, int timeoutMs) {
+        long start = System.currentTimeMillis();
+        while (System.currentTimeMillis() - start < timeoutMs) {
+            try (Socket socket = new Socket()) {
+                socket.connect(new InetSocketAddress(host, port), 1000);
+                return true; // 连接成功，端口已开放
+            } catch (IOException e) {
+                try { Thread.sleep(500); } catch (InterruptedException ignored) {}
+            }
+        }
+        return false; // 超时
+    }
+
 
     public Integer startXrayLisen(String name,String url,String output,String format,Long id,Integer source,String uuid) throws IOException {
         if (!new File(xray_path).exists()){
