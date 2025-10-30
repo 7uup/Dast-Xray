@@ -62,6 +62,7 @@ public class RadManager {
         cmd.add(targetUrl);
         cmd.add("--http-proxy");
         cmd.add(proxyHostAndPort);
+        cmd.add("--no-banner");
 
         ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.redirectErrorStream(false);
@@ -117,7 +118,7 @@ public class RadManager {
             if (delta >= IDLE_THRESHOLD_SEC) {
                 int stable = info.incrementStableCount();
                 if (stable >= STABLE_COUNT_REQUIRED) {
-                    stopRad(info.getId());
+//                    stopRad(info.getId());
                     log.info("✅ RAD [{}] 扫描完成并已自动结束", info.getId());
                 }
             } else {

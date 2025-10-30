@@ -49,7 +49,7 @@ public class ReportServiceImplSimpleTest {
     private ReportMapper reportService;
 
     @Test
-    public void runCrawlergo() throws IOException {
+    public void runCrawlergo() throws IOException, InterruptedException {
         System.out.println(taskService);
         taskService.startTask("02d6949e-11ee-45f0-a2a6-9618dd996363",1);
 //        List<Task> taskInfo = selectByGroupId("02d6949e-11ee-45f0-a2a6-9618dd996363");

@@ -56,7 +56,6 @@ public class TaskServiceImpl implements TaskService {
     private String xray_path;
     private String crawlergo_path;
     private String chromepath;
-    private String radDir;
     private Path xrayDir;
     private Path resultDir;
     private XrayManager m;
@@ -85,7 +84,6 @@ public class TaskServiceImpl implements TaskService {
         this.xray_path = toolPath.getXrayPath();
         this.crawlergo_path = toolPath.getCrawlergoPath();
         this.chromepath = toolPath.getChromePath();
-        this.radDir = toolPath.getRadPath();
 
         try {
             this.xrayDir = Paths.get(xray_path).getParent();
@@ -400,6 +398,9 @@ public class TaskServiceImpl implements TaskService {
         if(!new File(chromepath).exists()){
             return 12003; //chromepath path不存在
         }
+        Path xrayPath = Paths.get(xray_path);
+        Path radDir = xrayPath.getParent().resolve("rad");// xray_path/rad
+
         // 1. 创建临时文件保存urls
         File tempFile = File.createTempFile("urls_"+UUID.randomUUID().toString().replace("-",""), ".txt");
         try (BufferedWriter writer = new BufferedWriter(new FileWriter(tempFile))) {
@@ -412,11 +413,16 @@ public class TaskServiceImpl implements TaskService {
 
 
         CrawlergoManager.CrawlergoProcessInfo info = mgr.startCrawlergo2(crawlergo_path,chromepath,urls,formatToHttpUrl(xrayProxyLis),null);
-        radm.startRad(radDir.toString(), tempFile.getAbsolutePath(), formatToHttpUrl(xrayProxyLis));
+
+
 
 
         taskMapper.updateTaskcol2(id, String.valueOf(xrayport),info.getId());
-        tempFile.deleteOnExit();
+        Thread.sleep(2000);
+        log.info("✅ RAD 启动成功");
+        radm.startRad(radDir.toString(), tempFile.getAbsolutePath(), formatToHttpUrl(xrayProxyLis));
+
+//        tempFile.deleteOnExit();
         return 1;
     }
 

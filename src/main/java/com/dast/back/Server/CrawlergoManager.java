@@ -141,8 +141,8 @@ public class CrawlergoManager {
         cmd.add(proxyHostAndPort);
 //        cmd.add("--request-proxy");
 //        cmd.add(proxyHostAndPort);
-        cmd.add("-f");
-        cmd.add("small");
+//        cmd.add("-f");
+//        cmd.add("small");
         cmd.add("--fuzz-path");
         cmd.add("-u");
         cmd.add(newurls);
@@ -221,13 +221,7 @@ public class CrawlergoManager {
         }, CHECK_INTERVAL_SEC, CHECK_INTERVAL_SEC, TimeUnit.SECONDS);
     }
 
-    /**
-     * 模拟启动 RAD
-     */
-//    private void startRadScan(String processId) {
-//        // TODO: 替换为你自己的逻辑
-//        log.info("🚀 [RAD] 对进程 {} 启动补充扫描", processId);
-//    }
+
 
     /**
      * 停止 crawlergo
